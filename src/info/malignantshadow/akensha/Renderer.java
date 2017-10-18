@@ -57,6 +57,7 @@ public class Renderer {
 	public void render(String filename) throws IOException {
 		Path path = Paths.get(filename);
 
+		Files.createDirectories(path.getParent());
 		Files.write(path, render().getBytes());
 	}
 
@@ -151,12 +152,14 @@ public class Renderer {
 		//cloning to prevent being offset twice
 		Point ref = (arm.isUpper() ? points.upper : points.lower).clone();
 
-		int armPartition = (_letterH / 3);
+		Point armPartition = new Point();
+		armPartition.x = (_letterH / 3);
+		armPartition.y = (_letterH / 3) - (_dotR * 2); //doesnt matter for UPPER/LOWER
 
 		if (delta.x < 0)
-			delta.x = armPartition;
+			delta.x = armPartition.x;
 		if (delta.y < 0)
-			delta.y = armPartition;
+			delta.y = armPartition.y;
 
 		Point[] armPoints = getArmPoints(left, ref, delta, arm);
 		setPoints.accept(armPoints);

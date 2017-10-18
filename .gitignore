@@ -1,5 +1,5 @@
 .classpath
 .project
-.settings
-bin/
-/src/info/malignantshadow/akensha/Main.java
+.settings/**
+bin/**
+src/info/malignantshadow/akensha/Main.java

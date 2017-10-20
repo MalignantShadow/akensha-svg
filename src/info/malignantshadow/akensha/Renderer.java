@@ -17,17 +17,27 @@ public class Renderer {
 
 	private List<List<LetterPoints>> _words;
 	private int _letterH, _strokeW, _padding, _dotR;
-	private int _svgW = 0, _svgH = 0;
+	private int _svgW = 0, _svgH = 0, _startExt, _endExt;
 
 	public Renderer(List<LetterInfo> words, int padding, int letterHeight, int strokeWidth) {
+		this(words, padding, letterHeight, strokeWidth, 0, 0);
+	}
+
+	public Renderer(List<LetterInfo> words, int padding, int letterHeight, int strokeWidth, int startExtend, int endExtend) {
 		_letterH = letterHeight;
 		_strokeW = strokeWidth;
 		_padding = padding;
 		_dotR = strokeWidth;
+		_startExt = startExtend;
+		_endExt = endExtend;
 		_words = getPoints(words);
 	}
 
 	public static Renderer getRenderer(String string, int padding, int letterHeight, int strokeWidth) {
+		return getRenderer(string, padding, letterHeight, strokeWidth, 0, 0);
+	}
+
+	public static Renderer getRenderer(String string, int padding, int letterHeight, int strokeWidth, int startExtend, int endExtend) {
 		List<LetterInfo> info = new ArrayList<LetterInfo>();
 		if (string != null) {
 			for (int i = 0; i < string.length(); i++) {
@@ -193,6 +203,7 @@ public class Renderer {
 
 		Point min = new Point();
 		Point max = new Point();
+		int counter = 0;
 		for (LetterInfo l : word) {
 			LetterPoints points = new LetterPoints();
 			if (l == null) {
@@ -203,13 +214,16 @@ public class Renderer {
 				continue;
 			}
 
+			int extendStart = (counter == 0 ? _startExt : 0);
+			int extendEnd = (counter == word.size() - 1 ? _endExt : 0);
+
 			points.start.x = last.end.x;
 			points.start.y = last.end.y;
 			setMin(min, points.start);
 			setMax(max, points.start);
 
 			points.upper.x = points.start.x;
-			points.upper.y = points.start.y + third - halfStroke;
+			points.upper.y = points.start.y + third - halfStroke + extendStart;
 
 			points.lower.x = points.upper.x;
 			points.lower.y = points.upper.y + third + (halfStroke * 2);
@@ -221,12 +235,12 @@ public class Renderer {
 			setPoints(false, points, l.getRightDelta(), right, ((arm) -> points.right = arm), min, max);
 
 			if (l.getLetter().getBaseType() == Letter.BASE_LEFT)
-				points.end.x = points.lower.x - third;
+				points.end.x = points.lower.x - third - extendEnd;
 			else if (l.getLetter().getBaseType() == Letter.BASE_RIGHT)
-				points.end.x = points.lower.x + third;
+				points.end.x = points.lower.x + third + extendEnd;
 			else
 				points.end.x = points.lower.x;
-			points.end.y = points.start.y + _letterH;
+			points.end.y = points.start.y + _letterH + extendStart + extendEnd;
 
 			setMin(min, points.end);
 			setMax(max, points.end);
@@ -234,6 +248,7 @@ public class Renderer {
 			wordPoints.add(points);
 
 			last = points;
+			counter++;
 		}
 
 		wordList.add(wordPoints);
